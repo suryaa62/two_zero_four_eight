@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 
 class GameStateNotifier extends ChangeNotifier {
@@ -5,12 +7,32 @@ class GameStateNotifier extends ChangeNotifier {
     _stateMatrix = [
       for (int i = 0; i < gridsize; i++) [for (int j = 0; j < gridsize; j++) 0]
     ];
+    _fillRandom();
+    _fillRandom();
   }
 
   int gridsize;
   late List<List<int>> _stateMatrix;
+  Random random = Random();
 
   List<List<int>> get stateMatrix => _stateMatrix;
+
+  int _twoOrFour() {
+    double x = random.nextDouble();
+    if (x < 0.2) return 4;
+    return 2;
+  }
+
+  void _fillRandom() {
+    int x = random.nextInt(gridsize * gridsize);
+    int i = (x / gridsize).floor();
+    int j = x % gridsize;
+    if (_stateMatrix[i][j] == 0) {
+      _stateMatrix[i][j] = _twoOrFour();
+    } else {
+      _fillRandom();
+    }
+  }
 
   void _shift(List<int> l) {
     int tempindex = -1;
@@ -51,6 +73,7 @@ class GameStateNotifier extends ChangeNotifier {
     for (int i = 0; i <= gridsize - 1; i++) {
       _swipe(_stateMatrix[i]);
     }
+    _fillRandom();
     notifyListeners();
   }
 
@@ -60,6 +83,7 @@ class GameStateNotifier extends ChangeNotifier {
       _swipe(l);
       _stateMatrix[i] = List.from(l.reversed);
     }
+    _fillRandom();
     notifyListeners();
   }
 
@@ -76,6 +100,7 @@ class GameStateNotifier extends ChangeNotifier {
         _stateMatrix[j][i] = l[j];
       }
     }
+    _fillRandom();
     notifyListeners();
   }
 
@@ -93,6 +118,7 @@ class GameStateNotifier extends ChangeNotifier {
         _stateMatrix[j][i] = l[j];
       }
     }
+    _fillRandom();
     notifyListeners();
   }
 }

@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:two_zero_four_eight/core/game_state_notifier.dart';
 import 'package:two_zero_four_eight/ui/components/grid.dart';
+import 'package:two_zero_four_eight/ui/components/tile.dart';
+import 'package:two_zero_four_eight/ui/views/board_view.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -25,8 +29,19 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: Scaffold(
-        body: Center(child: Grid()),
+      home: ChangeNotifierProvider<GameStateNotifier>(
+        create: (context) => GameStateNotifier(),
+        child: Scaffold(
+          body: Center(
+              child: Consumer<GameStateNotifier>(
+            builder: (context, value, child) => Padding(
+              padding: const EdgeInsets.all(40),
+              child: BoardView(
+                gameState: value,
+              ),
+            ),
+          )),
+        ),
       ),
     );
   }
