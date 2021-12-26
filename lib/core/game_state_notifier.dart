@@ -11,9 +11,9 @@ class GameStateNotifier extends ChangeNotifier {
     ];
     _stateMatrix = [
       [0, 0, 0, 0],
+      [0, 2, 2, 0],
       [0, 0, 0, 0],
-      [0, 0, 0, 0],
-      [2, 0, 0, 0]
+      [0, 0, 0, 0]
     ];
     _oldStateMatrix = [
       for (int i = 0; i < gridsize; i++) [..._stateMatrix[i]]
@@ -26,8 +26,10 @@ class GameStateNotifier extends ChangeNotifier {
   late List<List<int>> _stateMatrix;
   late List<List<int>> _oldStateMatrix;
   Random random = Random();
+  Offset newTile = Offset.zero;
 
   List<List<int>> get stateMatrix => _stateMatrix;
+  List<List<int>> get oldStateMatrix => _oldStateMatrix;
 
   int _twoOrFour() {
     double x = random.nextDouble();
@@ -41,6 +43,7 @@ class GameStateNotifier extends ChangeNotifier {
     int j = x % gridsize;
     if (_stateMatrix[i][j] == 0) {
       _stateMatrix[i][j] = _twoOrFour();
+      newTile = Offset(j.toDouble(), i.toDouble());
     } else {
       _fillRandom();
     }

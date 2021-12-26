@@ -15,6 +15,7 @@ class Tile extends StatelessWidget {
         height: size,
         width: size,
         child: Card(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
           color: color,
           elevation: 3,
           child: Center(
