@@ -1,4 +1,6 @@
+import 'dart:developer' as dev;
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter/cupertino.dart';
 
@@ -7,12 +9,22 @@ class GameStateNotifier extends ChangeNotifier {
     _stateMatrix = [
       for (int i = 0; i < gridsize; i++) [for (int j = 0; j < gridsize; j++) 0]
     ];
-    _fillRandom();
-    _fillRandom();
+    _stateMatrix = [
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [2, 0, 0, 0]
+    ];
+    _oldStateMatrix = [
+      for (int i = 0; i < gridsize; i++) [..._stateMatrix[i]]
+    ];
+    // _fillRandom();
+    // _fillRandom();
   }
 
   int gridsize;
   late List<List<int>> _stateMatrix;
+  late List<List<int>> _oldStateMatrix;
   Random random = Random();
 
   List<List<int>> get stateMatrix => _stateMatrix;
@@ -69,25 +81,46 @@ class GameStateNotifier extends ChangeNotifier {
     _shift(l);
   }
 
+  void _preSwipeOperation() {
+    _oldStateMatrix = [
+      for (int i = 0; i < gridsize; i++) [..._stateMatrix[i]]
+    ];
+  }
+
+  void _postSwipeOperation() {
+    // print(_oldStateMatrix);
+    // print(_stateMatrix);
+
+    for (int i = 0; i < gridsize; i++) {
+      if (!listEquals(_oldStateMatrix[i], _stateMatrix[i])) {
+        // dev.log(true.toString());
+        _fillRandom();
+        notifyListeners();
+        break;
+      }
+    }
+  }
+
   void swipeLeft() {
+    _preSwipeOperation();
     for (int i = 0; i <= gridsize - 1; i++) {
       _swipe(_stateMatrix[i]);
     }
-    _fillRandom();
-    notifyListeners();
+    _postSwipeOperation();
   }
 
   void swipeRight() {
+    _preSwipeOperation();
     for (int i = 0; i <= gridsize - 1; i++) {
       List<int> l = List.from(_stateMatrix[i].reversed);
       _swipe(l);
       _stateMatrix[i] = List.from(l.reversed);
     }
-    _fillRandom();
-    notifyListeners();
+    _postSwipeOperation();
   }
 
   void swipeUp() {
+    _preSwipeOperation();
     for (int i = 0; i <= gridsize - 1; i++) {
       List<int> l = [];
       for (int j = 0; j <= gridsize - 1; j++) {
@@ -99,12 +132,14 @@ class GameStateNotifier extends ChangeNotifier {
       for (int j = 0; j <= gridsize - 1; j++) {
         _stateMatrix[j][i] = l[j];
       }
+      // dev.log(_oldStateMatrix.toString());
+      // dev.log(_stateMatrix.toString());
     }
-    _fillRandom();
-    notifyListeners();
+    _postSwipeOperation();
   }
 
   void swipeDown() {
+    _preSwipeOperation();
     for (int i = 0; i <= gridsize - 1; i++) {
       List<int> l = [];
       for (int j = gridsize - 1; j >= 0; j--) {
@@ -118,7 +153,6 @@ class GameStateNotifier extends ChangeNotifier {
         _stateMatrix[j][i] = l[j];
       }
     }
-    _fillRandom();
-    notifyListeners();
+    _postSwipeOperation();
   }
 }
