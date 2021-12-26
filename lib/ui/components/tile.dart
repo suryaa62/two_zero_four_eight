@@ -21,7 +21,10 @@ class Tile extends StatelessWidget {
           child: Center(
             child: Text(
               value.toString(),
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w600),
             ),
           ),
         ));

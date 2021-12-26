@@ -102,7 +102,7 @@ class _BoardViewState extends State<BoardView> with TickerProviderStateMixin {
                         parent: _controller, curve: Curves.easeOut)),
                 child: Tile(
                     color: Colors.amber,
-                    value: widget.gameState.oldStateMatrix[i][j],
+                    value: (widget.gameState.stateMatrix[i][j] / 2).toInt(),
                     size: tileSize),
               ));
             }
