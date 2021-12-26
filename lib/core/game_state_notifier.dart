@@ -9,17 +9,17 @@ class GameStateNotifier extends ChangeNotifier {
     _stateMatrix = [
       for (int i = 0; i < gridsize; i++) [for (int j = 0; j < gridsize; j++) 0]
     ];
-    _stateMatrix = [
-      [0, 0, 0, 0],
-      [0, 2, 2, 0],
-      [0, 0, 0, 0],
-      [0, 0, 0, 0]
-    ];
+    // _stateMatrix = [
+    //   [0, 0, 0, 0],
+    //   [2, 4, 4, 4],
+    //   [8, 2, 0, 2],
+    //   [2, 256, 128, 128]
+    // ];
     _oldStateMatrix = [
       for (int i = 0; i < gridsize; i++) [..._stateMatrix[i]]
     ];
-    // _fillRandom();
-    // _fillRandom();
+    _fillRandom();
+    _fillRandom();
   }
 
   int gridsize;

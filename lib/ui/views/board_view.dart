@@ -15,10 +15,17 @@ class BoardView extends StatefulWidget {
 
 class _BoardViewState extends State<BoardView> with TickerProviderStateMixin {
   late final AnimationController _controller =
-      AnimationController(vsync: this, duration: Duration(milliseconds: 8000))
+      AnimationController(vsync: this, duration: Duration(milliseconds: 200))
         ..forward();
   late final AnimationController _controllerScale =
-      AnimationController(vsync: this, duration: Duration(milliseconds: 8000));
+      AnimationController(vsync: this, duration: Duration(milliseconds: 100));
+
+  late final AnimationController _controllerScaleMerge =
+      AnimationController(vsync: this, duration: Duration(milliseconds: 50));
+
+  List<List<int>> mergeCell = [
+    for (int i = 0; i < 4; i++) [for (int j = 0; j < 4; j++) 0]
+  ];
 
   @override
   void initState() {
@@ -27,6 +34,10 @@ class _BoardViewState extends State<BoardView> with TickerProviderStateMixin {
       if (_controller.isCompleted) {
         _controllerScale.reset();
         _controllerScale.forward();
+        _controllerScaleMerge.reset();
+        _controllerScaleMerge
+            .fling()
+            .whenComplete(() => _controllerScaleMerge.reverse());
       }
     });
   }
@@ -36,12 +47,14 @@ class _BoardViewState extends State<BoardView> with TickerProviderStateMixin {
   @override
   void dispose() {
     _controller.dispose();
-    _controller.dispose();
+    _controllerScale.dispose();
+    _controllerScaleMerge.dispose();
     super.dispose();
   }
 
   List<PositionedTransition> _layoutTile(double boardWidth) {
     _controllerScale.reset();
+
     double tileSize = boardWidth / widget.gameState.gridsize;
     List<PositionedTransition> tiles = [];
     List<List<Offset>> previousOffset = _calculateInitialPosition(
@@ -72,26 +85,74 @@ class _BoardViewState extends State<BoardView> with TickerProviderStateMixin {
                   size: tileSize),
             ));
           } else {
-            tiles.add(PositionedTransition(
-              rect: RelativeRectTween(
-                      begin: RelativeRect.fromSize(
-                          Rect.fromLTWH(
-                              previousOffset[i][j].dx * tileSize,
-                              previousOffset[i][j].dy * tileSize,
-                              tileSize,
-                              tileSize),
-                          Size(boardWidth, boardWidth)),
-                      end: RelativeRect.fromSize(
-                          Rect.fromLTWH(
-                              j * tileSize, i * tileSize, tileSize, tileSize),
-                          Size(boardWidth, boardWidth)))
-                  .animate(CurvedAnimation(
-                      parent: _controller, curve: Curves.easeOut)),
-              child: Tile(
-                  color: Colors.amber,
-                  value: widget.gameState.stateMatrix[i][j],
-                  size: tileSize),
-            ));
+            int flag = 0;
+            if (mergeCell[i][j] == 1) {
+              flag = 1;
+              tiles.add(PositionedTransition(
+                rect: RelativeRectTween(
+                        begin: RelativeRect.fromSize(
+                            Rect.fromLTWH(
+                                j * tileSize, i * tileSize, tileSize, tileSize),
+                            Size(boardWidth, boardWidth)),
+                        end: RelativeRect.fromSize(
+                            Rect.fromLTWH(
+                                j * tileSize, i * tileSize, tileSize, tileSize),
+                            Size(boardWidth, boardWidth)))
+                    .animate(CurvedAnimation(
+                        parent: _controller, curve: Curves.easeOut)),
+                child: Tile(
+                    color: Colors.amber,
+                    value: widget.gameState.oldStateMatrix[i][j],
+                    size: tileSize),
+              ));
+            }
+            tiles.add((flag == 0)
+                ? PositionedTransition(
+                    rect: RelativeRectTween(
+                            begin: RelativeRect.fromSize(
+                                Rect.fromLTWH(
+                                    previousOffset[i][j].dx * tileSize,
+                                    previousOffset[i][j].dy * tileSize,
+                                    tileSize,
+                                    tileSize),
+                                Size(boardWidth, boardWidth)),
+                            end: RelativeRect.fromSize(
+                                Rect.fromLTWH(j * tileSize, i * tileSize,
+                                    tileSize, tileSize),
+                                Size(boardWidth, boardWidth)))
+                        .animate(CurvedAnimation(
+                            parent: _controller, curve: Curves.easeOut)),
+                    child: Tile(
+                        color: Colors.amber,
+                        value: widget.gameState.stateMatrix[i][j],
+                        size: tileSize),
+                  )
+                : PositionedTransition(
+                    rect: RelativeRectTween(
+                            begin: RelativeRect.fromSize(
+                                Rect.fromLTWH(
+                                    previousOffset[i][j].dx * tileSize,
+                                    previousOffset[i][j].dy * tileSize,
+                                    tileSize,
+                                    tileSize),
+                                Size(boardWidth, boardWidth)),
+                            end: RelativeRect.fromSize(
+                                Rect.fromLTWH(j * tileSize, i * tileSize,
+                                    tileSize, tileSize),
+                                Size(boardWidth, boardWidth)))
+                        .animate(CurvedAnimation(
+                            parent: _controller, curve: Curves.easeOut)),
+                    child: ScaleTransition(
+                      scale: Tween<double>(begin: 1, end: 1.2).animate(
+                          CurvedAnimation(
+                              parent: _controllerScaleMerge,
+                              curve: Curves.bounceInOut)),
+                      child: Tile(
+                          color: Colors.amber,
+                          value: widget.gameState.stateMatrix[i][j],
+                          size: tileSize),
+                    ),
+                  ));
           }
         }
       }
@@ -102,6 +163,9 @@ class _BoardViewState extends State<BoardView> with TickerProviderStateMixin {
 
   List<List<Offset>> _calculateInitialPosition(var current, var previous) {
     List<List<Offset>> x;
+    mergeCell = [
+      for (int i = 0; i < 4; i++) [for (int j = 0; j < 4; j++) 0]
+    ];
     if (lastSwipe == Swipe.left) {
       x = _calculateInitialPositionIfSwipeLeft(current, previous);
     } else if (lastSwipe == Swipe.right) {
@@ -131,6 +195,9 @@ class _BoardViewState extends State<BoardView> with TickerProviderStateMixin {
     x = List.from([
       for (int i = 0; i < 4; i++) [for (int j = 0; j < 4; j++) x[j][i]]
     ]);
+    mergeCell = List.from([
+      for (int i = 0; i < 4; i++) [for (int j = 0; j < 4; j++) mergeCell[j][i]]
+    ]);
     x = List.from([
       for (int i = 0; i < 4; i++)
         [for (int j = 0; j < 4; j++) Offset(x[i][j].dy, x[i][j].dx)]
@@ -151,6 +218,9 @@ class _BoardViewState extends State<BoardView> with TickerProviderStateMixin {
     x = _calculateInitialPositionIfSwipeLeft(tempCurrent, tempPrevious);
     x = List.from([
       for (int i = 0; i < 4; i++) [for (int j = 0; j < 4; j++) x[j][i]]
+    ]);
+    mergeCell = List.from([
+      for (int i = 0; i < 4; i++) [for (int j = 0; j < 4; j++) mergeCell[j][i]]
     ]);
     x = List.from([
       for (int i = 0; i < 4; i++)
@@ -179,11 +249,16 @@ class _BoardViewState extends State<BoardView> with TickerProviderStateMixin {
     x = List.from([
       for (int i = 0; i < 4; i++) [...x[i].reversed]
     ]);
+    mergeCell = List.from([
+      for (int i = 0; i < 4; i++) [...mergeCell[i].reversed]
+    ]);
     x = List.from([
       for (int i = 0; i < 4; i++)
         [for (int j = 0; j < 4; j++) Offset(3 - x[i][j].dx, x[i][j].dy)]
     ]);
-
+    log(tempCurrent.toString());
+    log(tempPrevious.toString());
+    log(x.toString());
     return x;
   }
 
@@ -203,6 +278,25 @@ class _BoardViewState extends State<BoardView> with TickerProviderStateMixin {
             if (previous[k][j] != 0) {
               if (previous[k][j] == current[k][i]) {
                 x[k][i] = Offset(j.toDouble(), k.toDouble());
+                previous[k][j] = 0;
+                break;
+              } else {
+                //log("merge");
+                mergeCell[k][i] = 1;
+                int flag = 1;
+                for (int l = i; l < 4 && flag < 3; l++) {
+                  if (previous[k][l] == current[k][i] / 2) {
+                    x[k][i] = Offset(l.toDouble(), k.toDouble());
+                    flag++;
+                    //log(" $i , $k -> $l $k");
+
+                    if (flag == 3) {
+                      previous[k][l] = 0;
+                      //log(previous.toString());
+                    }
+                  }
+                }
+                break;
               }
             }
           }
