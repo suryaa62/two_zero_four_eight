@@ -32,7 +32,19 @@ class MyApp extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  ScoreCard(score: 155),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "2048",
+                          style: TextStyle(fontSize: 40),
+                        ),
+                        ScoreCard(score: value.score),
+                      ],
+                    ),
+                  ),
                   BoardView(
                     gameState: value,
                   ),

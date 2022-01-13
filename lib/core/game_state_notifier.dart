@@ -18,6 +18,7 @@ class GameStateNotifier extends ChangeNotifier {
     _oldStateMatrix = [
       for (int i = 0; i < gridsize; i++) [..._stateMatrix[i]]
     ];
+    score = 0;
     _fillRandom();
     _fillRandom();
   }
@@ -27,6 +28,7 @@ class GameStateNotifier extends ChangeNotifier {
   late List<List<int>> _oldStateMatrix;
   Random random = Random();
   Offset newTile = Offset.zero;
+  late int score;
 
   List<List<int>> get stateMatrix => _stateMatrix;
   List<List<int>> get oldStateMatrix => _oldStateMatrix;
@@ -74,6 +76,7 @@ class GameStateNotifier extends ChangeNotifier {
       if (l[i] == l[i + 1]) {
         l[i] += l[i + 1];
         l[i + 1] = 0;
+        score += l[i];
       }
     }
   }
