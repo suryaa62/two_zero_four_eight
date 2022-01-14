@@ -6,21 +6,7 @@ import 'package:flutter/cupertino.dart';
 
 class GameStateNotifier extends ChangeNotifier {
   GameStateNotifier({this.gridsize = 4}) {
-    _stateMatrix = [
-      for (int i = 0; i < gridsize; i++) [for (int j = 0; j < gridsize; j++) 0]
-    ];
-    // _stateMatrix = [
-    //   [0, 0, 0, 0],
-    //   [2, 4, 4, 4],
-    //   [8, 2, 0, 2],
-    //   [2, 256, 128, 128]
-    // ];
-    _oldStateMatrix = [
-      for (int i = 0; i < gridsize; i++) [..._stateMatrix[i]]
-    ];
-    score = 0;
-    _fillRandom();
-    _fillRandom();
+    init();
   }
 
   int gridsize;
@@ -29,9 +15,30 @@ class GameStateNotifier extends ChangeNotifier {
   Random random = Random();
   Offset newTile = Offset.zero;
   late int score;
+  bool gameover = false;
 
   List<List<int>> get stateMatrix => _stateMatrix;
   List<List<int>> get oldStateMatrix => _oldStateMatrix;
+
+  void init() {
+    _stateMatrix = [
+      for (int i = 0; i < gridsize; i++) [for (int j = 0; j < gridsize; j++) 0]
+    ];
+    // _stateMatrix = [
+    //   [1, 2, 3, 4],
+    //   [4, 3, 2, 1],
+    //   [1, 2, 3, 4],
+    //   [0, 0, 0, 0]
+    // ];
+    _oldStateMatrix = [
+      for (int i = 0; i < gridsize; i++) [..._stateMatrix[i]]
+    ];
+    score = 0;
+    gameover = false;
+    _fillRandom();
+    _fillRandom();
+    notifyListeners();
+  }
 
   int _twoOrFour() {
     double x = random.nextDouble();
@@ -96,14 +103,36 @@ class GameStateNotifier extends ChangeNotifier {
   void _postSwipeOperation() {
     // print(_oldStateMatrix);
     // print(_stateMatrix);
-
+    bool diff = false;
     for (int i = 0; i < gridsize; i++) {
       if (!listEquals(_oldStateMatrix[i], _stateMatrix[i])) {
         // dev.log(true.toString());
+        diff = true;
         _fillRandom();
         notifyListeners();
         break;
       }
+    }
+    if (!diff) {
+      for (int i = 0; i < gridsize; i++) {
+        if (_stateMatrix[i].contains(0)) {
+          break;
+        }
+        if (i == gridsize - 1) {
+          gameover = true;
+          for (int j = 0; j < gridsize; j++) {
+            if (gameover == false) break;
+            for (int k = 0; k < gridsize - 1; k++) {
+              if (_stateMatrix[j][k] == _stateMatrix[j][k + 1] ||
+                  _stateMatrix[k][j] == _stateMatrix[k + 1][j]) {
+                gameover = false;
+                break;
+              }
+            }
+          }
+        }
+      }
+      if (gameover) notifyListeners();
     }
   }
 

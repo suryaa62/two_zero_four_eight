@@ -13,7 +13,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -48,6 +47,34 @@ class MyApp extends StatelessWidget {
                   BoardView(
                     gameState: value,
                   ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: ElevatedButton(
+                        style: ButtonStyle(
+                            maximumSize: MaterialStateProperty.all(
+                                Size(120, double.infinity)),
+                            backgroundColor: MaterialStateProperty.all(
+                                Colors.brown.shade300)),
+                        onPressed: () {
+                          value.init();
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Text(
+                                'Restart',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              Icon(
+                                Icons.restart_alt,
+                                color: Colors.white,
+                              )
+                            ],
+                          ),
+                        )),
+                  )
                 ],
               ),
             ),

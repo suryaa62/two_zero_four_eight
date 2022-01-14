@@ -318,6 +318,48 @@ class _BoardViewState extends State<BoardView> with TickerProviderStateMixin {
     Swipe swipe = Swipe.none;
     return LayoutBuilder(
       builder: (context, constraints) {
+        if (widget.gameState.gameover) {
+          Future.delayed(Duration.zero, () async {
+            showDialog(
+              barrierColor: Colors.amber.withOpacity(0.5),
+              barrierDismissible: false,
+              context: context,
+              builder: (context) => AlertDialog(
+                title: Text("Game Over"),
+                alignment: Alignment.center,
+                actionsAlignment: MainAxisAlignment.end,
+                actions: [
+                  ElevatedButton(
+                      style: ButtonStyle(
+                          maximumSize: MaterialStateProperty.all(
+                              Size(120, double.infinity)),
+                          backgroundColor:
+                              MaterialStateProperty.all(Colors.brown.shade300)),
+                      onPressed: () {
+                        widget.gameState.init();
+                        Navigator.of(context).pop();
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Text(
+                              'Restart',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            Icon(
+                              Icons.restart_alt,
+                              color: Colors.white,
+                            )
+                          ],
+                        ),
+                      ))
+                ],
+              ),
+            );
+          });
+        }
         return GestureDetector(
           onHorizontalDragUpdate: (details) {
             int senstivity = 8;
