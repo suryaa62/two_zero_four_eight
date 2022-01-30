@@ -15,7 +15,7 @@ class BoardView extends StatefulWidget {
 
 class _BoardViewState extends State<BoardView> with TickerProviderStateMixin {
   late final AnimationController _controller =
-      AnimationController(vsync: this, duration: Duration(milliseconds: 200))
+      AnimationController(vsync: this, duration: Duration(milliseconds: 150))
         ..forward();
   late final AnimationController _controllerScale =
       AnimationController(vsync: this, duration: Duration(milliseconds: 100));
@@ -99,7 +99,7 @@ class _BoardViewState extends State<BoardView> with TickerProviderStateMixin {
                                 j * tileSize, i * tileSize, tileSize, tileSize),
                             Size(boardWidth, boardWidth)))
                     .animate(CurvedAnimation(
-                        parent: _controller, curve: Curves.easeOut)),
+                        parent: _controller, curve: Curves.decelerate)),
                 child: Tile(
                     color: Colors.amber,
                     value: (widget.gameState.stateMatrix[i][j] / 2).toInt(),
@@ -121,7 +121,7 @@ class _BoardViewState extends State<BoardView> with TickerProviderStateMixin {
                                     tileSize, tileSize),
                                 Size(boardWidth, boardWidth)))
                         .animate(CurvedAnimation(
-                            parent: _controller, curve: Curves.easeOut)),
+                            parent: _controller, curve: Curves.decelerate)),
                     child: Tile(
                         color: Colors.amber,
                         value: widget.gameState.stateMatrix[i][j],
@@ -141,7 +141,7 @@ class _BoardViewState extends State<BoardView> with TickerProviderStateMixin {
                                     tileSize, tileSize),
                                 Size(boardWidth, boardWidth)))
                         .animate(CurvedAnimation(
-                            parent: _controller, curve: Curves.easeOut)),
+                            parent: _controller, curve: Curves.decelerate)),
                     child: ScaleTransition(
                       scale: Tween<double>(begin: 1, end: 1.2).animate(
                           CurvedAnimation(
